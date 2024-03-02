@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include
+from .views import CreateUserAPIView
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('', include('users.urls'))
+    path('', CreateUserAPIView.as_view())
 ]
