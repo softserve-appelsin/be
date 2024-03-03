@@ -10,7 +10,9 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['0.0.0.0']
 
-
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:4200",
+]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
