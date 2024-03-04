@@ -22,9 +22,15 @@ class CreateUserAPIView(APIView):
                     'user': serializer.data,
                     'profile': profile_serializer.data
                 }
-                return Response(response_data, status=status.HTTP_201_CREATED)
+                return Response({'success': True, 'data': response_data}, status=status.HTTP_201_CREATED)
             else:
                 user.delete()
                 return Response(profile_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+
+
+class GetAllUsersAPIView(APIView):
+    def get(self, request):
+        users = User.objects.all()
+        usernames = [user['username'] for user in UserSerializer(users, many=True).data]
+        return Response({'success': True, 'data': usernames})
