@@ -4,6 +4,8 @@ from rest_framework import status
 from rest_framework.views import APIView
 from .serializers import UserSerializer, UserProfileSerializer
 from django.contrib.auth.models import User
+from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
+from .models import Profile
 
 
 class CreateUserAPIView(APIView):
@@ -34,3 +36,20 @@ class GetAllUsersAPIView(APIView):
         users = User.objects.all()
         usernames = [user['username'] for user in UserSerializer(users, many=True).data]
         return Response({'success': True, 'data': usernames})
+     
+
+class GetTokenForUserAPIView(APIView):
+    def post(self, request):
+        data = request.data
+        try:
+            user = User.objects.get(username=data['username'], password=data['password'])
+        except:
+            return Response({'success': False, 'msg': 'user does not exist'})
+        
+        access_token = AccessToken.for_user(user)
+        refresh_token = RefreshToken.for_user(user)
+        response = {
+            'access': str(access_token),
+            'refresh': str(refresh_token)
+        }
+        return Response({'success': True, 'tokens': response})
