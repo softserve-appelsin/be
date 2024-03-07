@@ -1,4 +1,3 @@
-from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
@@ -6,16 +5,26 @@ from .serializers import UserSerializer, UserProfileSerializer
 from django.contrib.auth.models import User
 from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
 from .models import Profile
+from rest_framework.permissions import IsAuthenticated
+from django.contrib.auth import authenticate
 
 
 class CreateUserAPIView(APIView):
     def post(self, request):
+        data = request.data
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
-            user = serializer.save()
+            user = User.objects.create_user(
+                username=data.get('username'), 
+                password=data.get('password'), 
+                email=data.get('email'),
+                first_name=data.get('first_name'),
+                last_name=data.get('last_name')
+                )
             profile_data = {
                 'user': user.id,
-                'profile_type': request.data.get('profile_type')
+                'profile_type': data.get('profile_type'),
+                'phone_number': data.get('phone_number')
             }
             profile_serializer = UserProfileSerializer(data=profile_data)
             if profile_serializer.is_valid():
@@ -32,6 +41,7 @@ class CreateUserAPIView(APIView):
 
 
 class GetAllUsersAPIView(APIView):
+    permission_classes = [IsAuthenticated, ]
     def get(self, request):
         users = User.objects.all()
         usernames = [user['username'] for user in UserSerializer(users, many=True).data]
@@ -41,11 +51,9 @@ class GetAllUsersAPIView(APIView):
 class GetTokenForUserAPIView(APIView):
     def post(self, request):
         data = request.data
-        try:
-            user = User.objects.get(username=data['username'], password=data['password'])
-        except:
-            return Response({'success': False, 'msg': 'user does not exist'})
-        
+        user = authenticate(username=data['username'], password=data['password'])
+        if user == None:
+            return Response({'success': True, 'msg': 'invalid password or username'})
         access_token = AccessToken.for_user(user)
         refresh_token = RefreshToken.for_user(user)
         response = {
