@@ -1,7 +1,12 @@
 # https://testdriven.io/blog/dockerizing-django-with-postgres-gunicorn-and-nginx/
 
+# TODO: non-root
 # TODO: dont use latest, set python version explicitly
 FROM python
+
+# set environment variables
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
 
 WORKDIR /soft_serve
 
