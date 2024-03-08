@@ -1,15 +1,21 @@
-FROM python
+# https://testdriven.io/blog/dockerizing-django-with-postgres-gunicorn-and-nginx/
 
-COPY . .
+# TODO: dont use latest, set python version explicitly
+FROM python
 
 WORKDIR /soft_serve
 
+# Install dependencies
 RUN pip install --upgrade pip
-
+COPY ./requirements.txt .
 RUN pip install -r requirements.txt
 
-RUN python manage.py makemigrations
+# Copy project
+COPY . .
 
+# DB Should be outside of container
+RUN python manage.py makemigrations
 RUN python manage.py migrate
 
-CMD [ "python manage.py runserver 0.0.0.0:8001" ]
+# List of commands to execute
+CMD [ "python", "manage.py", "runserver", "0.0.0.0:8000" ]
