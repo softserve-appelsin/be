@@ -1,13 +1,14 @@
 version: '3'
 
 services:
-  django:
-    image: back-end-app
+  backend:
     build:
       context: .
-    restart: always
+    restart: unless-stopped
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
       - ./:/soft_serve
     ports:
       - 8000:8000
+    env_file:
+      - ./.env.dev
