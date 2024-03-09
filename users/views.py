@@ -61,3 +61,11 @@ class GetTokenForUserAPIView(APIView):
             'refresh': str(refresh_token)
         }
         return Response({'success': True, 'tokens': response})
+
+
+class UserProfileTypesAPIView(APIView):
+    def get(self, request):
+        profiles = Profile.objects.all()
+        serializer = UserProfileSerializer(profiles, many=True)
+        profile_types = [profile_data['profile_type'] for profile_data in serializer.data]
+        return Response({'success': True, 'profile_types': profile_types})
