@@ -19,8 +19,8 @@ RUN pip install -r requirements.txt
 COPY . .
 
 # DB Should be outside of container
-RUN python manage.py makemigrations
-RUN python manage.py migrate
+# RUN python manage.py makemigrations
+# RUN python manage.py migrate
 
 # List of commands to execute
 CMD [ "python", "manage.py", "runserver", "0.0.0.0:8000" ]
