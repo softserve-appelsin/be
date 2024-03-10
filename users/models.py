@@ -6,7 +6,7 @@ class Profile(models.Model):
         ('Artist', 'Artist'),
         ('Listener', 'Listener')
     )
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     phone_number = models.CharField(max_length=15)
     profile_type = models.CharField(max_length=100, choices=PROFILE_TYPES)
     avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)

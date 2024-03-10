@@ -1,6 +1,6 @@
 from pathlib import Path
 from datetime import timedelta
-
+import os
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -23,9 +23,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     "corsheaders",
     'rest_framework',
-    'main.apps.MainConfig',
     'users.apps.UsersConfig',
     'djoser',
+    'music.apps.MusicConfig'
 ]
 
 MIDDLEWARE = [
@@ -129,6 +129,11 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",
 }
 
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 LANGUAGE_CODE = 'en-us'
 
