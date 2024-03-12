@@ -72,8 +72,8 @@ class UserProfileTypesAPIView(APIView):
     
 
 class UserFullNameAPIView(APIView):
+    permission_classes = [IsAuthenticated, ]
     def get(self, request):
-        if request.user.is_authenticated:
             user_profile = Profile.objects.filter(user=request.user).first()
 
             if user_profile and user_profile.full_name:
@@ -81,5 +81,3 @@ class UserFullNameAPIView(APIView):
                 return Response(serializer.data)
             else:
                 return Response({'detail': 'User Full Name doesn’t exist'}, status=status.HTTP_404_NOT_FOUND)
-        else:
-            return Response({'detail': 'User not authenticated'}, status=status.HTTP_401_UNAUTHORIZED)
