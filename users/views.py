@@ -72,12 +72,15 @@ class UserProfileTypesAPIView(APIView):
     
 
 class UserFullNameAPIView(APIView):
-    permission_classes = [IsAuthenticated, ]
     def get(self, request):
-            user_profile = Profile.objects.filter(user=request.user).first()
-
-            if user_profile and user_profile.full_name:
-                serializer = UserProfileSerializer(user_profile)
-                return Response(serializer.data)
-            else:
-                return Response({'detail': 'User Full Name doesn’t exist'}, status=status.HTTP_404_NOT_FOUND)
+        users = User.objects.all()
+        full_name = []
+        for user in users:
+            full_name.append({
+                'first_name': user.first_name,
+                'last_name': user.last_name,
+            })
+        if full_name == None:
+            return Response({'success': True, 'detail': 'User Full Name doesn’t exist'})
+        else:
+            return Response({'success': True, 'full_name': full_name})
