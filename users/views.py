@@ -69,3 +69,18 @@ class UserProfileTypesAPIView(APIView):
         serializer = UserProfileSerializer(profiles, many=True)
         profile_types = [profile_data['profile_type'] for profile_data in serializer.data]
         return Response({'success': True, 'profile_types': profile_types})
+    
+
+class UserFullNameAPIView(APIView):
+    def get(self, request):
+        users = User.objects.all()
+        full_name = []
+        for user in users:
+            full_name.append({
+                'first_name': user.first_name,
+                'last_name': user.last_name,
+            })
+        if full_name == None:
+            return Response({'success': True, 'detail': 'User Full Name doesn’t exist'})
+        else:
+            return Response({'success': True, 'full_name': full_name})
