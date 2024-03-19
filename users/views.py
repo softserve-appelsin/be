@@ -33,7 +33,7 @@ class CreateUserAPIView(APIView):
                     'user': serializer.data,
                     'profile': profile_serializer.data
                 }
-                return Response({'success': True, 'data': response_data}, status=status.HTTP_201_CREATED)
+                return Response({"success": True, 'data': response_data}, status=status.HTTP_201_CREATED)
             else:
                 user.delete()
                 return Response(profile_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -45,25 +45,27 @@ class GetAllUsersAPIView(APIView):
     def get(self, request):
         users = User.objects.all()
         usernames = [user['username'] for user in UserSerializer(users, many=True).data]
-        return Response({'success': True, 'data': usernames})
+        return Response({"success": True, 'data': usernames})
      
 
 class GetTokenForUserAPIView(APIView):
+    
     def post(self, request):
         data = request.data
         user = authenticate(username=data['username'], password=data['password'])
         if user == None:
-            return Response({'success': True, 'msg': 'invalid password or username'})
+            return Response({"success": True, 'msg': 'invalid password or username'})
         access_token = AccessToken.for_user(user)
         refresh_token = RefreshToken.for_user(user)
         response = {
             'access': str(access_token),
             'refresh': str(refresh_token)
         }
-        return Response({'success': True, 'tokens': response})
+        return Response({"success": True, 'tokens': response})
 
 
 class UserProfileTypesAPIView(APIView):
+    permission_classes = [IsAuthenticated, ]
     def get(self, request):
         profiles = Profile.objects.all()
         serializer = UserProfileSerializer(profiles, many=True)
@@ -82,5 +84,4 @@ class UserFullNameAPIView(APIView):
             })
         if full_name == None:
             return Response({'success': True, 'detail': 'User Full Name doesn’t exist'})
-        else:
-            return Response({'success': True, 'full_name': full_name})
+        return Response({'success': True, 'full_name': full_name})
