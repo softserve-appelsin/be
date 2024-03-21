@@ -24,3 +24,4 @@ COPY . .
 
 # List of commands to execute
 CMD [ "python", "manage.py", "runserver", "0.0.0.0:8000" ]
+
