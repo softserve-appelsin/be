@@ -3,10 +3,11 @@ from .models import Track, Album, PlayList, Comment
 
 
 class TrackSerializer(serializers.ModelSerializer):
+    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
     class Meta:
         model = Track
         fields = '__all__'
-
+        
 
 class AlbumSerializer(serializers.ModelSerializer):
     class Meta:
