@@ -10,18 +10,21 @@ class TrackSerializer(serializers.ModelSerializer):
         
 
 class AlbumSerializer(serializers.ModelSerializer):
+    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
     class Meta:
         model = Album
         fields = '__all__'
 
 
 class PlayListSerializer(serializers.ModelSerializer):
+    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
     class Meta:
         model = PlayList
         fields = '__all__'
 
 
 class CommentSerializer(serializers.ModelSerializer):
+    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
     class Meta:
         model = Comment
         fields = '__all__'

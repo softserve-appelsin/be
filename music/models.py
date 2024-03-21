@@ -51,7 +51,7 @@ class Comment(models.Model):
 class PlayList(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='play_lists')
     title = models.CharField(max_length=50)
-    tracks = models.ManyToManyField(Track, related_name='track_play_lists')
+    tracks = models.ManyToManyField(Track, related_name='track_play_lists', blank=True)
     image_playlist = models.ImageField(
         upload_to='image_for_playlist/',
         blank=True,
