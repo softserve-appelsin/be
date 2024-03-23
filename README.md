@@ -9,7 +9,7 @@ docker-compose -f docker-compose.yml up -d --build
 
 ### with postgres
 ```sh
-docker-compose -f docker-compose.postgres.yml up -d --build
+docker-compose -f docker-compose.postgres.yml up -d
 ```
 On first run postgres db will be created, wich will be reused on next run. 
 
