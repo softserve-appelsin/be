@@ -1,0 +1,35 @@
+version: '3'
+
+services:
+  backend:
+    build:
+      context: .
+    restart: unless-stopped
+    depends_on:
+      - postgresql
+    command: >
+      sh -c "
+        python manage.py makemigrations &&
+        python manage.py migrate &&
+        python manage.py runserver 0.0.0.0:8000
+      "
+    volumes:
+      - ./:/soft_serve
+    ports:
+      - 8000:8000
+    env_file:
+      - ./.env.dev
+
+  postgresql:
+    # https://github.com/bitnami/containers/blob/main/bitnami/postgresql/README.md
+    image: 'bitnami/postgresql:latest'
+    environment:
+      - POSTGRESQL_USERNAME=appelsin
+      - POSTGRESQL_PASSWORD=appelsin4ever
+      - POSTGRESQL_DATABASE=my_database
+    volumes:
+      - db:/bitnami/postgresql
+
+volumes:
+  db:
+
