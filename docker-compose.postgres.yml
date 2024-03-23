@@ -27,6 +27,8 @@ services:
       - POSTGRESQL_USERNAME=appelsin
       - POSTGRESQL_PASSWORD=appelsin4ever
       - POSTGRESQL_DATABASE=my_database
+    ports:
+      - 5432:5432
     volumes:
       - db:/bitnami/postgresql
 
