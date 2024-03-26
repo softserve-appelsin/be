@@ -62,14 +62,29 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'soft_serve.wsgi.application'
 
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+    #   - POSTGRESQL_USERNAME=appelsin
+    #   - POSTGRESQL_PASSWORD=appelsin4ever
+    #   - POSTGRESQL_DATABASE=my_database
+    
+if os.environ.get("POSTGRESQL_USERNAME"):
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.environ.get("POSTGRESQL_DATABASE"),
+            'USER': os.environ.get("POSTGRESQL_USERNAME"), 
+            'PASSWORD': os.environ.get("POSTGRESQL_PASSWORD"), 
+            'HOST': os.environ.get("POSTGRESQL_HOST"), 
+            'PORT': os.environ.get("POSTGRESQL_PORT"),  
+        }
     }
-}
-
+    
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 AUTH_PASSWORD_VALIDATORS = [
     {
