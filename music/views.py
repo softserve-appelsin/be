@@ -10,7 +10,8 @@ from django.shortcuts import get_object_or_404
 
 
 class TrackAPIView(APIView):
-
+    
+    permission_classes = [IsAuthenticated, IsArtist,]
     def get(self, request):
         track_id = request.GET.get('track_id')
         if track_id:
