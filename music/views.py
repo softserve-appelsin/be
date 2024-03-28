@@ -74,20 +74,29 @@ class PlayListAPIView(APIView):
         tracks = Track.objects.filter(pk__in=track_ids)
         playlist.tracks.add(*tracks) 
         return Response({"success": True, "msg": "Tracks added to playlist."})
-            
+
 
 class PlayListInfoAPIView(APIView):
-
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
         playlists = PlayList.objects.filter(user=request.user)
         serializer = PlayListSerializer(playlists, many=True)
 
+        playlist_data = []
+        for playlist in playlists:
+            tracks_count = playlist.tracks.count()
+            playlist_data.append({
+                'id': playlist.id,
+                'title': playlist.title,
+                'tracks_count': tracks_count,
+            })
+
         return Response({
             "success": True,
             "data": {
                 "playlists": serializer.data,
-                "count_playlists": playlists.count()
+                "count_playlists": playlists.count(),
+                "playlist_info": playlist_data
             }
         })
