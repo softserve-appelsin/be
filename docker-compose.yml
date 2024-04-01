@@ -1,11 +1,19 @@
 version: '3'
 
 services:
-  django:
-    image: back-end-app
-    restart: always
-    command: python manage.py runserver 0.0.0.0:8000
+  backend:
+    build:
+      context: .
+    restart: unless-stopped
+    command: >
+      sh -c "
+        python manage.py makemigrations &&
+        python manage.py migrate &&
+        python manage.py runserver 0.0.0.0:8000
+      "
     volumes:
-      - ./soft_serve:/soft_serve
+      - ./:/soft_serve
     ports:
       - 8000:8000
+    env_file:
+      - ./.env.dev
