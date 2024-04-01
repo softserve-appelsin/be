@@ -53,10 +53,15 @@ class GetTokenForUserAPIView(APIView):
     def post(self, request):
         data = request.data
         user = authenticate(username=data['username'], password=data['password'])
-        if user == None:
-            return Response({"success": True, 'msg': 'invalid password or username'})
+        if user is None:
+            return Response({"success": False, 'msg': 'Invalid password or username'})
+        
         access_token = AccessToken.for_user(user)
         refresh_token = RefreshToken.for_user(user)
+        access_token.payload['user_id'] = user.id
+        access_token.payload['username'] = user.get_username()
+        access_token.payload['profile_type'] = user.profile.profile_type
+        
         response = {
             'access': str(access_token),
             'refresh': str(refresh_token)
@@ -85,3 +90,14 @@ class UserFullNameAPIView(APIView):
         if full_name == None:
             return Response({'success': True, 'detail': 'User Full Name doesn’t exist'})
         return Response({'success': True, 'full_name': full_name})
+
+
+class LogoutAPIView(APIView):
+    def post(self, request):
+        try:
+            refresh_token = request.data['refresh_token']
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+            return Response({"message": "Logout successful"}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
