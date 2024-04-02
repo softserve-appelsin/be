@@ -15,6 +15,8 @@ ALLOWED_HOSTS = ['*']
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:4200",
+    "https://appelsin.stage.dnull.systems"
+    "https://appelsin.dnull.systems"
 ]
 
 INSTALLED_APPS = [
