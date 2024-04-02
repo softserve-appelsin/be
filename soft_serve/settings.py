@@ -12,23 +12,19 @@ SECRET_KEY = os.getenv('SECRET_KEY_PROJECT')
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
-CORS_ORIGIN_ALLOW_ALL = True
-CORS_ALLOW_HEADERS = "*"
 
-# CORS_ALLOWED_ORIGINS = [
-#     "http://localhost:4200",
-#     "https://appelsin.stage.dnull.systems",
-#     "https://appelsin.dnull.systems"
-# ]
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:4200",
+]
 
 INSTALLED_APPS = [
-    "corsheaders",
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    "corsheaders",
     'rest_framework',
     'users.apps.UsersConfig',
     'djoser',
@@ -36,9 +32,9 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    "corsheaders.middleware.CorsMiddleware",
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
