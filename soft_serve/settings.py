@@ -12,14 +12,14 @@ SECRET_KEY = os.getenv('SECRET_KEY_PROJECT')
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
-CORS_ORIGIN_ALLOW_ALL = True
-CORS_ALLOW_HEADERS = "*"
 
-# CORS_ALLOWED_ORIGINS = [
-#     "http://localhost:4200",
-#     "https://appelsin.stage.dnull.systems",
-#     "https://appelsin.dnull.systems"
-# ]
+CORS_ORIGIN_ALLOW_ALL = True
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:4200",
+    "https://appelsin.stage.dnull.systems",
+    "https://appelsin.dnull.systems"
+]
 
 INSTALLED_APPS = [
     "corsheaders",
