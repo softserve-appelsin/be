@@ -99,6 +99,7 @@ class UserProfileTypesAPIView(APIView):
     
 
 class UserFullNameAPIView(APIView):
+    permission_classes = [IsAuthenticated, ]
     def get(self, request):
         users = User.objects.all()
         full_name = []
@@ -113,10 +114,11 @@ class UserFullNameAPIView(APIView):
 
 
 class LogoutAPIView(APIView):
+    permission_classes = [IsAuthenticated, ]
+
     def post(self, request):
         try:
-            refresh_token = request.data['refresh_token']
-            token = RefreshToken(refresh_token)
+            token = RefreshToken(request.data.get('refresh'))
             token.blacklist()
             return Response({"message": "Logout successful"}, status=status.HTTP_200_OK)
         except Exception as e:
