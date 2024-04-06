@@ -29,11 +29,11 @@ class Track(models.Model):
     plays_count = models.PositiveIntegerField(default=0)
     likes_count = models.PositiveIntegerField(default=0)
     user_of_likes = models.ManyToManyField(User, related_name='likes_of_tracks', blank=True)
-    image_track = models.ImageField(
-        upload_to='image_for_track/',
-        blank=True,
-        null=True,
-        validators=[FileExtensionValidator(allowed_extensions=['jpg'])])
+    # image_track = models.ImageField(
+    #     upload_to='image_for_track/',
+    #     blank=True,
+    #     null=True,
+    #     validators=[FileExtensionValidator(allowed_extensions=['jpg'])])
 
     def __str__(self):
         return f'{self.user} - track {self.title}'
