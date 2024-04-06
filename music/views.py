@@ -43,6 +43,16 @@ class TrackAPIView(APIView):
 
 
 
+class LikedTracksAPIView(APIView):
+
+    permission_classes = [IsAuthenticated,]
+    
+    def get(self, request):
+        liked_tracks = Track.objects.filter(user_of_likes=request.user)
+        serializer = TrackSerializer(liked_tracks, many=True)
+        return Response({"success": True, "data": serializer.data})
+
+
 class PlayListAPIView(APIView):
 
     permission_classes = [IsAuthenticated,]
