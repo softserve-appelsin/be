@@ -4,7 +4,7 @@ from .serializers import TrackSerializer, PlayListSerializer
 from rest_framework.permissions import IsAuthenticated
 from .models import Track, PlayList
 from .permissions import IsArtist
-from django.http import FileResponse, StreamingHttpResponse, HttpResponse
+from django.http import FileResponse
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 
@@ -18,6 +18,8 @@ class TrackAPIView(APIView):
             try:
                 track = get_object_or_404(Track, id=track_id)
                 response = FileResponse(open(track.file.path, 'rb'), filename=track.file.name)
+                track.plays_count += 1
+                track.save()
                 return response
             except Track.DoesNotExist:
                 return Response({"success": False, "msg": "Track does not exist"}, status=status.HTTP_404_NOT_FOUND)
