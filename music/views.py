@@ -28,8 +28,7 @@ class TrackAPIView(APIView):
 
         tracks = Track.objects.all()
         serializers_track = TrackSerializer(tracks, many=True)
-        titles = [track_data['title'] for track_data in serializers_track.data]
-        return Response({"success": True, "data": titles})
+        return Response({"success": True, "data": serializers_track.data})
     
     
     def post(self, request):
