@@ -16,20 +16,18 @@ class TrackAPIView(APIView):
         track_id = request.query_params.get('track_id')
         if track_id:
             try:
-                track = Track.objects.get(id=track_id)
-                track_file = track.file
-                response = FileResponse(open(track_file.path, 'rb'), content_type='audio/mp3')
-                response['Content-Disposition'] = f'attachment; filename="{track_file.name}"'
+                track = get_object_or_404(Track, id=track_id)
+                response = FileResponse(open(track.file.path, 'rb'), filename=track.file.name)
+                track.plays_count += 1
+                track.save()
                 return response
             except Track.DoesNotExist:
                 return Response({"success": False, "msg": "Track does not exist"}, status=status.HTTP_404_NOT_FOUND)
             except Exception as e:
                 return Response({"success": False, "msg": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
         tracks = Track.objects.all()
         serializers_track = TrackSerializer(tracks, many=True)
-        titles = [track_data['title'] for track_data in serializers_track.data]
-        return Response({"success": True, "data": titles})
+        return Response({"success": True, "data": serializers_track.data})
     
     
     def post(self, request):

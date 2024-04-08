@@ -47,6 +47,22 @@ class GetAllUsersAPIView(APIView):
         usernames = [user['username'] for user in UserSerializer(users, many=True).data]
         return Response({"success": True, 'data': usernames})
      
+     
+class RefreshTokenAPIView(APIView):
+    
+    def post(self, request):
+        try:
+            token = RefreshToken(request.data['refresh_token'])
+            access_token = token.access_token
+            new_refresh_token = token
+            return Response({
+                "success": True,
+                'access_token': str(access_token),
+                'refresh_token': str(new_refresh_token),
+            })
+        except Exception as e:
+            return Response({"error": str(e)})
+
 
 class GetTokenForUserAPIView(APIView):
     
@@ -61,6 +77,10 @@ class GetTokenForUserAPIView(APIView):
         access_token.payload['user_id'] = user.id
         access_token.payload['username'] = user.get_username()
         access_token.payload['profile_type'] = user.profile.profile_type
+        
+        refresh_token.payload['user_id'] = user.id
+        refresh_token.payload['username'] = user.get_username()
+        refresh_token.payload['profile_type'] = user.profile.profile_type
         
         response = {
             'access': str(access_token),
@@ -79,6 +99,7 @@ class UserProfileTypesAPIView(APIView):
     
 
 class UserFullNameAPIView(APIView):
+    permission_classes = [IsAuthenticated, ]
     def get(self, request):
         users = User.objects.all()
         full_name = []
@@ -93,10 +114,11 @@ class UserFullNameAPIView(APIView):
 
 
 class LogoutAPIView(APIView):
+    permission_classes = [IsAuthenticated, ]
+
     def post(self, request):
         try:
-            refresh_token = request.data['refresh_token']
-            token = RefreshToken(refresh_token)
+            token = RefreshToken(request.data.get('refresh'))
             token.blacklist()
             return Response({"message": "Logout successful"}, status=status.HTTP_200_OK)
         except Exception as e:
