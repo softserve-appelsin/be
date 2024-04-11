@@ -12,7 +12,6 @@ from django.shortcuts import get_object_or_404
 class TrackAPIView(APIView):
     
     def get(self, request):
-        
         track_id = request.query_params.get('track_id')
         if track_id:
             try:
@@ -31,7 +30,6 @@ class TrackAPIView(APIView):
     
     
     def post(self, request):
-        
         serializer = TrackSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             serializer.save()
@@ -63,7 +61,7 @@ class PlayListAPIView(APIView):
 
 
     def put(self, request):
-        playlist_id = request.query_params.get('playlist_id')
+        playlist_id = request.data.get('playlist_id')
         track_ids = request.data.get('track_ids')
         if not playlist_id or not track_ids:
             return Response({"success": False, "msg": "Missing playlist ID or track IDs."}, status=status.HTTP_400_BAD_REQUEST)
