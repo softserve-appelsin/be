@@ -7,6 +7,8 @@ from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
 from .models import Profile
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import authenticate
+from music.models import PlayList, Track
+from music.serializers import PlayListSerializer, TrackSerializer
 
 
 class CreateUserAPIView(APIView):
@@ -85,3 +87,30 @@ class UserFullNameAPIView(APIView):
         if full_name == None:
             return Response({'success': True, 'detail': 'User Full Name doesn’t exist'})
         return Response({'success': True, 'full_name': full_name})
+
+
+class UserInfoAPIView(APIView):
+    def get(self, request, username):
+        try:
+            profile = Profile.objects.get(user__username=username)
+        except Profile.DoesNotExist:
+            return Response({"success": False, "message": f"User with username '{username}' not found"},
+                            status=status.HTTP_404_NOT_FOUND)
+
+        playlists = PlayList.objects.filter(user=profile.user)
+        playlist_serializer = PlayListSerializer(playlists, many=True)
+
+        favorite_tracks = Track.objects.filter(user=profile.user, likes_count__gt=0)
+        favorite_tracks_serializer = TrackSerializer(favorite_tracks, many=True)
+
+        user_info = {
+            "username": profile.user.username,
+            "profile_type": profile.profile_type,
+            "phone_number": profile.phone_number,
+            "avatar": str(profile.avatar),
+            "bio": profile.bio,
+            "playlists": playlist_serializer.data,
+            "favorite_tracks": favorite_tracks_serializer.data
+        }
+
+        return Response({"success": True, "user_info": user_info})
