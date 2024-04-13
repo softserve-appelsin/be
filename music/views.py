@@ -47,10 +47,20 @@ class LikedTracksAPIView(APIView):
 
     permission_classes = [IsAuthenticated,]
     
-    def get(self, request):
-        liked_tracks = Track.objects.filter(user_of_likes=request.user)
-        serializer = TrackSerializer(liked_tracks, many=True)
-        return Response({"success": True, "data": serializer.data})
+    def post(self, request):
+        serializer = TrackSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            track_id = serializer.validated_data.get('track_id')
+            try:
+                track = Track.objects.get(id=track_id)
+            except Track.DoesNotExist:
+                return Response({"success": False, "msg": "Track not found."}, status=status.HTTP_404_NOT_FOUND)
+        
+            track.user_of_likes.add(request.user)
+            track.likes_count += 1
+            track.save()
+            return Response({"success": True, "msg": "Track liked successfully."})
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class PlayListAPIView(APIView):
