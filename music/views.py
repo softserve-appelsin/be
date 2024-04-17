@@ -4,6 +4,7 @@ from .serializers import TrackSerializer, PlayListSerializer
 from rest_framework.permissions import IsAuthenticated
 from .models import Track, PlayList
 from .permissions import IsArtist
+from django.core.exceptions import ObjectDoesNotExist
 from django.http import FileResponse
 from rest_framework import status
 from django.shortcuts import get_object_or_404
@@ -46,8 +47,13 @@ class PlayListAPIView(APIView):
     def get(self, request):
         try:
             playlist = PlayList.objects.get(user=request.user)
+            
+        except ObjectDoesNotExist as e:
+            return Response({"success": True, "msg": "no playlists for current user"})
+        
         except Exception as e:
             return Response({"success": False, "msg": str(e)})
+        
         serializer = PlayListSerializer(playlist)
         return Response({"success": True, "data": serializer.data})
 
