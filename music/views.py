@@ -78,7 +78,6 @@ class PlayListAPIView(APIView):
         return Response({"success": True, "msg": "Tracks added to playlist."})
 
 
-
 class PlayListInfoAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
