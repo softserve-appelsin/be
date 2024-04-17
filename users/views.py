@@ -49,16 +49,41 @@ class GetAllUsersAPIView(APIView):
         usernames = [user['username'] for user in UserSerializer(users, many=True).data]
         return Response({"success": True, 'data': usernames})
      
+     
+class RefreshTokenAPIView(APIView):
+    
+    def post(self, request):
+        try:
+            token = RefreshToken(request.data['refresh_token'])
+            access_token = token.access_token
+            new_refresh_token = token
+            return Response({
+                "success": True,
+                'access_token': str(access_token),
+                'refresh_token': str(new_refresh_token),
+            })
+        except Exception as e:
+            return Response({"error": str(e)})
+
 
 class GetTokenForUserAPIView(APIView):
     
     def post(self, request):
         data = request.data
         user = authenticate(username=data['username'], password=data['password'])
-        if user == None:
-            return Response({"success": True, 'msg': 'invalid password or username'})
+        if user is None:
+            return Response({"success": False, 'msg': 'Invalid password or username'})
+        
         access_token = AccessToken.for_user(user)
         refresh_token = RefreshToken.for_user(user)
+        access_token.payload['user_id'] = user.id
+        access_token.payload['username'] = user.get_username()
+        access_token.payload['profile_type'] = user.profile.profile_type
+        
+        refresh_token.payload['user_id'] = user.id
+        refresh_token.payload['username'] = user.get_username()
+        refresh_token.payload['profile_type'] = user.profile.profile_type
+        
         response = {
             'access': str(access_token),
             'refresh': str(refresh_token)
@@ -76,6 +101,7 @@ class UserProfileTypesAPIView(APIView):
     
 
 class UserFullNameAPIView(APIView):
+    permission_classes = [IsAuthenticated, ]
     def get(self, request):
         users = User.objects.all()
         full_name = []
@@ -114,3 +140,14 @@ class UserInfoAPIView(APIView):
         }
 
         return Response({"success": True, "user_info": user_info})
+
+class LogoutAPIView(APIView):
+    permission_classes = [IsAuthenticated, ]
+
+    def post(self, request):
+        try:
+            token = RefreshToken(request.data.get('refresh'))
+            token.blacklist()
+            return Response({"message": "Logout successful"}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)

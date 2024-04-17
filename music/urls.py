@@ -8,3 +8,4 @@ urlpatterns = [
     path('playlists/', PlayListAPIView.as_view()),
     path('playlists_info/', PlayListInfoAPIView.as_view())
 ]
+
