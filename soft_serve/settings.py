@@ -33,7 +33,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'users.apps.UsersConfig',
     'djoser',
-    'music.apps.MusicConfig'
+    'music.apps.MusicConfig',
+    'user_info.apps.UserInfoConfig'
 ]
 
 MIDDLEWARE = [
