@@ -30,7 +30,6 @@ class UserInfoAPIView(APIView):
             "username": profile.user.username,
             "profile_type": profile.profile_type,
             "phone_number": profile.phone_number,
-            "avatar": str(profile.avatar),
             "bio": profile.bio,
             "playlists": playlist_serializer.data,
             "favorite_tracks": favorite_tracks_serializer.data
@@ -63,6 +62,7 @@ class UserFullNameAPIView(APIView):
         full_name = []
         for user in users:
             full_name.append({
+                'username': user.username,
                 'first_name': user.first_name,
                 'last_name': user.last_name,
             })
