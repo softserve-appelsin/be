@@ -83,3 +83,12 @@ class UpdateInfoUserAPIView(UpdateAPIView):
     def partial_update(self, request, *args, **kwargs):
         kwargs['partial'] = True
         return super().partial_update(request, *args, **kwargs)
+
+
+class ArtistListAPIView(APIView):
+    def get(self, request):
+        artist_profiles = Profile.objects.filter(profile_type="artist")
+
+        serializer = UserProfileSerializer(artist_profiles, many=True)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
