@@ -4,7 +4,6 @@ from rest_framework.views import APIView
 from .serializers import UserSerializer, UserProfileSerializer
 from django.contrib.auth.models import User
 from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
-from .models import Profile
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import authenticate
 
@@ -38,14 +37,6 @@ class CreateUserAPIView(APIView):
                 user.delete()
                 return Response(profile_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-class GetAllUsersAPIView(APIView):
-    permission_classes = [IsAuthenticated, ]
-    def get(self, request):
-        users = User.objects.all()
-        usernames = [user['username'] for user in UserSerializer(users, many=True).data]
-        return Response({"success": True, 'data': usernames})
      
      
 class RefreshTokenAPIView(APIView):
@@ -87,30 +78,6 @@ class GetTokenForUserAPIView(APIView):
             'refresh': str(refresh_token)
         }
         return Response({"success": True, 'tokens': response})
-
-
-class UserProfileTypesAPIView(APIView):
-    permission_classes = [IsAuthenticated, ]
-    def get(self, request):
-        profiles = Profile.objects.all()
-        serializer = UserProfileSerializer(profiles, many=True)
-        profile_types = [profile_data['profile_type'] for profile_data in serializer.data]
-        return Response({'success': True, 'profile_types': profile_types})
-    
-
-class UserFullNameAPIView(APIView):
-    permission_classes = [IsAuthenticated, ]
-    def get(self, request):
-        users = User.objects.all()
-        full_name = []
-        for user in users:
-            full_name.append({
-                'first_name': user.first_name,
-                'last_name': user.last_name,
-            })
-        if full_name == None:
-            return Response({'success': True, 'detail': 'User Full Name doesn’t exist'})
-        return Response({'success': True, 'full_name': full_name})
 
 
 class LogoutAPIView(APIView):
