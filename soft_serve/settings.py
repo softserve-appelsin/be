@@ -35,7 +35,7 @@ INSTALLED_APPS = [
     'djoser',
     'music.apps.MusicConfig',
     'user_info.apps.UserInfoConfig'
-    'storages'
+    # 'storages'
 ]
 
 MIDDLEWARE = [
