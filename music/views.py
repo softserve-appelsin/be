@@ -1,6 +1,6 @@
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .serializers import TrackSerializer, PlayListSerializer
+from .serializers import TrackSerializer, PlayListSerializer, TrackInfoSerializer
 from rest_framework.permissions import IsAuthenticated
 from .models import Track, PlayList
 from .permissions import IsArtist
@@ -8,7 +8,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.http import FileResponse
 from rest_framework import status
 from django.shortcuts import get_object_or_404
-
+from .utils import get_track_file_from_aws
 
 class TrackAPIView(APIView):
     
@@ -18,26 +18,29 @@ class TrackAPIView(APIView):
         if track_id:
             try:
                 track = get_object_or_404(Track, id=track_id)
-                response = FileResponse(open(track.file.path, 'rb'), filename=track.file.name)
+                obj = get_track_file_from_aws(track)
+                
                 track.plays_count += 1
                 track.save()
-                return response
+                
+                return FileResponse(obj, filename=track.file.name)
+
             except Track.DoesNotExist:
-                return Response({"success": False, "msg": "Track does not exist"}, status=status.HTTP_404_NOT_FOUND)
+                return Response("Track does not exist", status=404)
             except Exception as e:
-                return Response({"success": False, "msg": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                return Response(str(e), status=500)
             
         if track_id_info:
             try:
                 track = get_object_or_404(Track, id=track_id_info)
                 
-                serializer = TrackSerializer(track)
-                
-                return Response({"success": True, "data": serializer.data})
+                liked_song = track.user_of_likes.filter(id=request.user.id).exists() 
+                serializers = TrackInfoSerializer(track)
+
+                return Response({"success": True,  "data": serializers.data, "test": liked_song})
             
             except Track.DoesNotExist:
                 return Response({"success": False, "msg": "Track does not exist"}, status=status.HTTP_404_NOT_FOUND)
-            
             except Exception as e:
                 return Response({"success": False, "msg": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             

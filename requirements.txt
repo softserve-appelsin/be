@@ -33,5 +33,3 @@ social-auth-app-django==5.4.0
 social-auth-core==4.5.3
 sqlparse==0.4.4
 urllib3==2.2.1
-factory-boy==3.3.0
-psycopg2-binary==2.9.9
