@@ -2,14 +2,14 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
 from django.contrib.auth.models import User
-from users.serializers import UserSerializer, UserProfileSerializer
+from .serializers import UserSerializer, UserProfileSerializer
 from users.models import Profile
-from users.serializers import UserProfileSerializer
 from rest_framework.permissions import IsAuthenticated
 from music.models import PlayList, Track
 from music.serializers import PlayListSerializer, TrackSerializer
 from rest_framework import permissions
 from rest_framework.generics import UpdateAPIView
+from django.shortcuts import get_object_or_404
 
 
 class UserInfoAPIView(APIView):
@@ -86,9 +86,25 @@ class UpdateInfoUserAPIView(UpdateAPIView):
 
 
 class ArtistListAPIView(APIView):
-    def get(self, request):
+    
+    def get(self, request, username=None):
+        
+        if username:
+            user = get_object_or_404(User, username=username)
+            profile = get_object_or_404(Profile, id=user.id)
+            
+            if profile.profile_type != 'Artist':
+                return Response({'success': True, 'msg': 'current user is not artist'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            user_serializer = UserSerializer(user)
+            profile_serializer = UserProfileSerializer(profile)
+            
+            return Response({'success': True, 'data': {
+                'user': user_serializer.data,
+                'profile': profile_serializer.data
+            }})
+            
         artists_profiles = Profile.objects.filter(profile_type="Artist")
-
         if not artists_profiles.exists():
             return Response({"message": "No artists available"}, status=status.HTTP_404_NOT_FOUND)
 

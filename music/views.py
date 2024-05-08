@@ -15,6 +15,7 @@ class TrackAPIView(APIView):
     def get(self, request):
         track_id = request.query_params.get('track_id_file')
         track_id_info = request.query_params.get('track_id')
+        
         if track_id:
             try:
                 track = get_object_or_404(Track, id=track_id)
@@ -41,11 +42,12 @@ class TrackAPIView(APIView):
             
             except Track.DoesNotExist:
                 return Response({"success": False, "msg": "Track does not exist"}, status=status.HTTP_404_NOT_FOUND)
+            
             except Exception as e:
                 return Response({"success": False, "msg": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             
         tracks = Track.objects.all()
-        serializers_track = TrackSerializer(tracks, many=True)
+        serializers_track = TrackInfoSerializer(tracks, many=True)
         return Response({"success": True, "data": serializers_track.data})
     
     
