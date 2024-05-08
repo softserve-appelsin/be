@@ -87,8 +87,10 @@ class UpdateInfoUserAPIView(UpdateAPIView):
 
 class ArtistListAPIView(APIView):
     def get(self, request):
-        artist_profiles = Profile.objects.filter(profile_type="artist")
+        artists_profiles = Profile.objects.filter(profile_type="Artist")
 
-        serializer = UserProfileSerializer(artist_profiles, many=True)
+        if not artists_profiles.exists():
+            return Response({"message": "No artists available"}, status=status.HTTP_404_NOT_FOUND)
 
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        artists = [profile.user.username for profile in artists_profiles]
+        return Response({"success": True, 'data': artists}, status=status.HTTP_200_OK)
