@@ -1,6 +1,6 @@
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .serializers import TrackSerializer, PlayListSerializer, TrackInfoSerializer
+from .serializers import TrackSerializer, PlayListSerializer, TrackInfoSerializer, UserSerializer
 from rest_framework.permissions import IsAuthenticated
 from .models import Track, PlayList
 from .permissions import IsArtist
@@ -37,7 +37,10 @@ class TrackAPIView(APIView):
                 liked_song = track.user_of_likes.filter(id=request.user.id).exists() 
                 serializers = TrackInfoSerializer(track)
 
-                return Response({"success": True,  "data": serializers.data, "test": liked_song})
+                response_data = serializers.data
+                response_data['artist'] = UserSerializer(track.user).data
+
+                return Response({"success": True,  "data": response_data, "test": liked_song})
             
             except Track.DoesNotExist:
                 return Response({"success": False, "msg": "Track does not exist"}, status=status.HTTP_404_NOT_FOUND)
