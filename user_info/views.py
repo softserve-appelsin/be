@@ -43,7 +43,7 @@ class GetAllUsersAPIView(APIView):
     def get(self, request):
         users = User.objects.all()
         usernames = [user['username'] for user in UserSerializer(users, many=True).data]
-        return Response({"success": True, 'data': usernames})
+        return Response({"success": True, "data": usernames})
 
 
 class UserProfileTypesAPIView(APIView):
@@ -52,7 +52,7 @@ class UserProfileTypesAPIView(APIView):
         profiles = Profile.objects.all()
         serializer = UserProfileSerializer(profiles, many=True)
         profile_types = [profile_data['profile_type'] for profile_data in serializer.data]
-        return Response({'success': True, 'profile_types': profile_types})
+        return Response({"success": True, "profile_types": profile_types})
     
 
 class UserFullNameAPIView(APIView):
@@ -62,13 +62,13 @@ class UserFullNameAPIView(APIView):
         full_name = []
         for user in users:
             full_name.append({
-                'username': user.username,
-                'first_name': user.first_name,
-                'last_name': user.last_name,
+                "username": user.username,
+                "first_name": user.first_name,
+                "last_name": user.last_name,
             })
         if full_name == None:
-            return Response({'success': True, 'detail': 'User Full Name doesn’t exist'})
-        return Response({'success': True, 'full_name': full_name})
+            return Response({"success": True, "detail": "User Full Name doesn’t exist"})
+        return Response({"success": True, "full_name": full_name})
 
 
 class UpdateInfoUserAPIView(UpdateAPIView):
@@ -94,14 +94,14 @@ class ArtistListAPIView(APIView):
             profile = get_object_or_404(Profile, id=user.id)
             
             if profile.profile_type != 'Artist':
-                return Response({'success': True, 'msg': 'current user is not artist'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({"success": True, "msg": "current user is not artist"}, status=status.HTTP_400_BAD_REQUEST)
             
             user_serializer = UserSerializer(user)
             profile_serializer = UserProfileSerializer(profile)
             
-            return Response({'success': True, 'data': {
-                'user': user_serializer.data,
-                'profile': profile_serializer.data
+            return Response({"success": True, "data": {
+                "user": user_serializer.data,
+                "profile": profile_serializer.data
             }})
             
         artists_profiles = Profile.objects.filter(profile_type="Artist")
@@ -109,4 +109,4 @@ class ArtistListAPIView(APIView):
             return Response({"message": "No artists available"}, status=status.HTTP_404_NOT_FOUND)
 
         artists = [profile.user.username for profile in artists_profiles]
-        return Response({"success": True, 'data': artists}, status=status.HTTP_200_OK)
+        return Response({"success": True, "data": artists}, status=status.HTTP_200_OK)

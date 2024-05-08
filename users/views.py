@@ -21,18 +21,18 @@ class CreateUserAPIView(APIView):
                 last_name=data.get('last_name')
                 )
             profile_data = {
-                'user': user.id,
-                'profile_type': data.get('profile_type'),
-                'phone_number': data.get('phone_number')
+                "user": user.id,
+                "profile_type": data.get('profile_type'),
+                "phone_number": data.get('phone_number')
             }
             profile_serializer = UserProfileSerializer(data=profile_data)
             if profile_serializer.is_valid():
                 profile_serializer.save()
                 response_data = {
-                    'user': serializer.data,
-                    'profile': profile_serializer.data
+                    "user": serializer.data,
+                    "profile": profile_serializer.data
                 }
-                return Response({"success": True, 'data': response_data}, status=status.HTTP_201_CREATED)
+                return Response({"success": True, "data": response_data}, status=status.HTTP_201_CREATED)
             else:
                 user.delete()
                 return Response(profile_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -48,8 +48,8 @@ class RefreshTokenAPIView(APIView):
             new_refresh_token = token
             return Response({
                 "success": True,
-                'access_token': str(access_token),
-                'refresh_token': str(new_refresh_token),
+                "access_token": str(access_token),
+                "refresh_token": str(new_refresh_token),
             })
         except Exception as e:
             return Response({"error": str(e)})
@@ -61,7 +61,7 @@ class GetTokenForUserAPIView(APIView):
         data = request.data
         user = authenticate(username=data['username'], password=data['password'])
         if user is None:
-            return Response({"success": False, 'msg': 'Invalid password or username'})
+            return Response({"success": False, "msg": "Invalid password or username"})
         
         access_token = AccessToken.for_user(user)
         refresh_token = RefreshToken.for_user(user)
@@ -74,10 +74,10 @@ class GetTokenForUserAPIView(APIView):
         refresh_token.payload['profile_type'] = user.profile.profile_type
         
         response = {
-            'access': str(access_token),
-            'refresh': str(refresh_token)
+            "access": str(access_token),
+            "refresh": str(refresh_token)
         }
-        return Response({"success": True, 'tokens': response})
+        return Response({"success": True, "tokens": response})
 
 
 class LogoutAPIView(APIView):
