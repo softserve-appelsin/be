@@ -38,7 +38,7 @@ class TrackAPIView(APIView):
                 liked_song = track.user_of_likes.filter(id=request.user.id).exists() 
                 serializers = TrackInfoSerializer(track)
 
-                return Response({"success": True,  "data": serializers.data, "test": liked_song})
+                return Response({"success": True,  "data": serializers.data, "liked": liked_song})
             
             except Track.DoesNotExist:
                 return Response({"success": False, "msg": "Track does not exist"}, status=status.HTTP_404_NOT_FOUND)
@@ -72,6 +72,21 @@ class TrackByArtistAPIView(APIView):
             return Response({"success": True, "data": serializer.data})
         except Exception as e:
             return Response({"success": False, "msg": str(e)})
+        
+
+class AlbumByArtistAPIView(APIView):
+    
+    permission_classes = [IsArtist, ]
+    
+    def get(self, request):
+        try:
+            user = request.user
+            tracks = Album.objects.filter(user=user)
+            serializer = AlbumSerializer(tracks)
+            return Response({"success": True, "data": serializer.data})
+        except Exception as e:
+            return Response({"success": False, "msg": str(e)})
+        
 
 class PlayListAPIView(APIView):
 
@@ -165,7 +180,7 @@ class TrackLikeAPIView(APIView):
         return Response({"message": "Track liked successfully"}, status=status.HTTP_200_OK)
     
     
-    def delete(self, request):
+    def put(self, request):
         user = request.user
         track_id = request.data.get('track_id')
 
