@@ -46,16 +46,13 @@ jobs:
         REPO: git@github.com:softserve-appelsin/infra.git
         REVISION: main
         KEY: image.tag
-        # VALUE: 
+        VALUE: ${{ needs.build.outputs.sha_short }}
         FILE: apps/be/stage.yaml
         GIT_USERNAME: dnull-bot
         GIT_EMAIL: shellshock.dnull+bot@gmail.com
     steps:
       - name: Check out the repo
         uses: actions/checkout@v4
-      - name: Set outputs
-        id: vars
-        run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
       - name: Install SSH key
         uses: shimataro/ssh-key-action@v2
         with:
@@ -67,4 +64,4 @@ jobs:
           /app/deployer  \
           -f "apps/be/stage.yaml" \
           -k "image.tag" \
-          -v "${{ steps.vars.outputs.sha_short }}"
+          -v "${{ needs.build.outputs.sha_short }}"
