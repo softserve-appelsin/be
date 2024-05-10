@@ -2,11 +2,14 @@
 name: Build and Publish
 
 on:
-  release:
-    types: [published]
+  pull_request:
+  push:
+    branches:
+      - "main"
+      - "stage"
 
 jobs:
-  publish-docker-image:
+  build:
     name: Push Docker image to Docker Hub
     runs-on: ubuntu-latest
     steps:
@@ -35,3 +38,25 @@ jobs:
           platforms: linux/amd64,linux/arm64
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    needs: publish-docker-image
+    container:
+      image: 2xnone/deployer:sha-f88e0c4
+      env:
+        DEPLOY_KEY: /ssh/infra
+        REPO: git@github.com:softserve-appelsin/infra.git
+        REVISION: main
+        KEY: image.tag'
+        VALUE: ${{ needs.build.outputs.tag }}
+        FILE: apps/be/stage.yaml
+        GIT_USERNAME: dnull-bot
+        GIT_EMAIL: shellshock.dnull+bot@gmail.com
+    steps:
+      - name: Commit to infra repo
+        run: |
+          /app/deployer  \
+          -f "apps/be/stage.yaml" \
+          -k "image.tag" \
+          -v "${{ needs.build.outputs.tag }}"
