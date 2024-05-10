@@ -230,3 +230,25 @@ class AlbumAPIView(APIView):
     def put(self, request):
         return Response({"success": True, "request": request})
 
+
+class TrackAlbumPageArtistAPIView(APIView):
+    
+    def get(request, self, id):
+        try: 
+            tracks = Track.objects.filter(user=id)
+            album = Album.objects.filter(user=id)
+            
+            tracks_serializer = TrackSerializer(tracks, many=True)
+            albums_serializer = AlbumSerializer(album, many=True)
+            
+            return Response({"success": True,
+                             "data": {
+                                "tracks": tracks_serializer.data,
+                                "albums": albums_serializer.data
+                    }
+                }
+            )
+
+        except Exception as e:
+            return Response({"success": False, "message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        

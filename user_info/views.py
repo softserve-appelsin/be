@@ -87,11 +87,11 @@ class UpdateInfoUserAPIView(UpdateAPIView):
 
 class ArtistListAPIView(APIView):
     
-    def get(self, request, username=None):
+    def get(self, request, pk=None):
         
-        if username:
-            user = get_object_or_404(User, username=username)
-            profile = get_object_or_404(Profile, id=user.id)
+        if pk:
+            user = get_object_or_404(User, id=pk)
+            profile = get_object_or_404(Profile, user=user.id)
             
             if profile.profile_type != 'Artist':
                 return Response({"success": True, "msg": "current user is not artist"}, status=status.HTTP_400_BAD_REQUEST)
