@@ -34,7 +34,7 @@ jobs:
           file: ./Dockerfile
           push: true
           platforms: linux/amd64
-          tags: ${{ steps.vars.outputs.sha_short }}
+          tags: 2xnone/appelsin-be:${{ steps.vars.outputs.sha_short }}
   deploy:
     name: Deploy
     runs-on: ubuntu-latest
