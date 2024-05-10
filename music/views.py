@@ -94,7 +94,7 @@ class PlayListAPIView(APIView):
 
     def get(self, request):
         try:
-            playlist = PlayList.objects.get(user=request.user)
+            playlist = PlayList.objects.filter(user=request.user)
             
         except ObjectDoesNotExist as e:
             return Response({"success": True, "msg": "no playlists for current user"})
