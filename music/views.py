@@ -102,7 +102,7 @@ class PlayListAPIView(APIView):
         except Exception as e:
             return Response({"success": False, "msg": str(e)})
         
-        serializer = PlayListSerializer(playlist)
+        serializer = PlayListSerializer(playlist, many=True)
         return Response({"success": True, "data": serializer.data})
 
     def post(self, request):
