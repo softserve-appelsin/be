@@ -8,5 +8,5 @@ urlpatterns = [
     path('get_full_names_of_users/', UserFullNameAPIView.as_view()),
     path('uppdate_user_profile/', UpdateInfoUserAPIView.as_view()),
     path('artists/', ArtistListAPIView.as_view()),
-    path('artists/<str:username>/', ArtistListAPIView.as_view()),
+    path('artists/<int:pk>/', ArtistListAPIView.as_view()),
 ]

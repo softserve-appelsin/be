@@ -9,6 +9,8 @@ from django.http import FileResponse
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 from .utils import get_track_file_from_aws
+from django.contrib.auth.models import User
+from django.http import Http404
 
 class TrackAPIView(APIView):
     
@@ -59,6 +61,9 @@ class TrackAPIView(APIView):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    
+    def delete(self, request):
+        pass
 
 class TrackByArtistAPIView(APIView):
     
@@ -201,11 +206,11 @@ class TrackLikeAPIView(APIView):
 
 class AlbumAPIView(APIView):
     
-    def get(self, request, album=None):
+    def get(self, request, pk=None):
         
-        if album:
+        if pk:
             try:
-                current_album = Album.objects.get(name=album)
+                current_album = Album.objects.get(id=pk)
                 serializer = AlbumSerializer(current_album)
                 return Response({"success": True, "data": serializer.data})
             except Album.DoesNotExist:
@@ -233,22 +238,25 @@ class AlbumAPIView(APIView):
 
 class TrackAlbumPageArtistAPIView(APIView):
     
-    def get(request, self, id):
+    def get(self, request, id):
         try: 
-            tracks = Track.objects.filter(user=id)
-            album = Album.objects.filter(user=id)
+            user = get_object_or_404(User, id=id)
+            tracks = Track.objects.filter(user=user)
+            albums = Album.objects.filter(user=user)
             
             tracks_serializer = TrackSerializer(tracks, many=True)
-            albums_serializer = AlbumSerializer(album, many=True)
+            albums_serializer = AlbumSerializer(albums, many=True)
             
             return Response({"success": True,
                              "data": {
                                 "tracks": tracks_serializer.data,
                                 "albums": albums_serializer.data
-                    }
-                }
-            )
+                             }
+                           })
 
+        except Http404:
+            return Response({"success": False, "message": "User does not exist"}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return Response({"success": False, "message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
         

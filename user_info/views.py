@@ -88,12 +88,12 @@ class UpdateInfoUserAPIView(UpdateAPIView):
 class ArtistListAPIView(APIView):
     
     def get(self, request, pk=None):
-        
+            
         if pk:
             user = get_object_or_404(User, id=pk)
-            profile = get_object_or_404(Profile, user=user.id)
+            profile = get_object_or_404(Profile, user=user)
             
-            if profile.profile_type != 'Artist':
+            if profile.profile_type != "Artist":
                 return Response({"success": True, "msg": "current user is not artist"}, status=status.HTTP_400_BAD_REQUEST)
             
             user_serializer = UserSerializer(user)
@@ -102,11 +102,17 @@ class ArtistListAPIView(APIView):
             return Response({"success": True, "data": {
                 "user": user_serializer.data,
                 "profile": profile_serializer.data
-            }})
-            
+            }}, status=status.HTTP_200_OK)
+         
         artists_profiles = Profile.objects.filter(profile_type="Artist")
+        
         if not artists_profiles.exists():
             return Response({"message": "No artists available"}, status=status.HTTP_404_NOT_FOUND)
 
-        artists = [profile.user.username for profile in artists_profiles]
-        return Response({"success": True, "data": artists}, status=status.HTTP_200_OK)
+        users = [profile.user for profile in artists_profiles]
+        user_serializer = UserSerializer(users, many=True)
+        profile_serializer = UserProfileSerializer(artists_profiles, many=True)
+        return Response({"success": True, "data": {
+                "user": user_serializer.data,
+                "profile": profile_serializer.data
+            }}, status=status.HTTP_200_OK)
