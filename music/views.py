@@ -62,9 +62,18 @@ class TrackAPIView(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     
-    def delete(self, request):
-        pass
-
+    def delete(self, request, pk=None):
+        if pk:
+            try:
+                track = get_object_or_404(Track, id=pk)
+                track.delete()
+                return Response({"success": True, "msg": "Track deleted"}, status=status.HTTP_204_NO_CONTENT)
+            except Track.DoesNotExist:
+                return Response({"success": False, "msg": "Track does not exist"}, status=status.HTTP_404_NOT_FOUND)
+            except Exception as e:
+                return Response({"success": False, "msg": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response({"success": False, "msg": "Track id is required for deletion"}, status=status.HTTP_400_BAD_REQUEST)
+    
 class TrackByArtistAPIView(APIView):
     
     permission_classes = [IsArtist, ]
@@ -129,6 +138,19 @@ class PlayListAPIView(APIView):
         tracks = Track.objects.filter(pk__in=track_ids)
         playlist.tracks.add(*tracks) 
         return Response({"success": True, "msg": "Tracks added to playlist."})
+    
+    def delete(self, request, pk=None):
+        if pk:
+            try:
+                playlist = get_object_or_404(PlayList, id=pk, user=request.user)
+                playlist.delete()
+                return Response({"success": True, "msg": "Playlist deleted"}, status=status.HTTP_204_NO_CONTENT)
+            except PlayList.DoesNotExist:
+                return Response({"success": False, "msg": "Playlist does not exist"}, status=status.HTTP_404_NOT_FOUND)
+            except Exception as e:
+                return Response({"success": False, "msg": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        else:
+            return Response({"success": False, "msg": "Playlist ID is required for deletion"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class PlayListInfoAPIView(APIView):
@@ -234,6 +256,20 @@ class AlbumAPIView(APIView):
         
     def put(self, request):
         return Response({"success": True, "request": request})
+    
+    
+    def delete(self, request, pk=None):
+        if pk:
+            try:
+                album = get_object_or_404(Album, id=pk)
+                album.delete()
+                return Response({"success": True, "msg": "Album deleted"}, status=status.HTTP_204_NO_CONTENT)
+            except Album.DoesNotExist:
+                return Response({"success": False, "msg": "Album does not exist"}, status=status.HTTP_404_NOT_FOUND)
+            except Exception as e:
+                return Response({"success": False, "msg": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        else:
+            return Response({"success": False, "msg": "Album id is required for deletion"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class TrackAlbumPageArtistAPIView(APIView):
