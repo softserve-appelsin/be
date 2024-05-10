@@ -11,6 +11,6 @@ urlpatterns = [
     path('album/', AlbumAPIView.as_view()),
     path('album/<str:album>', AlbumAPIView.as_view()),
     path('track_by_artist/', TrackByArtistAPIView.as_view()),
-    path('album_by_artis/', AlbumByArtistAPIView)
+    path('album_by_artis/', AlbumByArtistAPIView.as_view())
 ]
 

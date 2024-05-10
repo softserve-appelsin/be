@@ -69,9 +69,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'soft_serve.wsgi.application'
 
-    #   - POSTGRESQL_USERNAME=appelsin
-    #   - POSTGRESQL_PASSWORD=appelsin4ever
-    #   - POSTGRESQL_DATABASE=my_database
     
 if os.environ.get("POSTGRESQL_USERNAME"):
     DATABASES = {
