@@ -64,4 +64,4 @@ jobs:
           /app/deployer  \
           -f "apps/be/stage.yaml" \
           -k "image.tag" \
-          -v "${{ needs.build.outputs.sha_short }}"
+          -v ${{ needs.build.outputs.sha_short }}
