@@ -1,13 +1,16 @@
 ---
-name: Build and Publish
+name: Build and Deploy
 
 on:
-  release:
-    types: [published]
+  # pull_request:
+  push:
+    branches:
+      # - "main"
+      - "stage"
 
 jobs:
-  publish-docker-image:
-    name: Push Docker image to Docker Hub
+  build:
+    name: Build
     runs-on: ubuntu-latest
     steps:
       - name: Check out the repo
@@ -26,12 +29,51 @@ jobs:
         uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
         with:
           images: 2xnone/appelsin-be
+          tags: |
+            type=sha
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
           context: .
           file: ./Dockerfile
           push: true
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    needs: build
+    container:
+      image: 2xnone/deployer:sha-f88e0c4
+      env:
+        DEPLOY_KEY: /root/.ssh/deployment
+        REPO: git@github.com:softserve-appelsin/infra.git
+        REVISION: main
+        KEY: image.tag
+        # VALUE: 
+        FILE: apps/be/stage.yaml
+        GIT_USERNAME: dnull-bot
+        GIT_EMAIL: shellshock.dnull+bot@gmail.com
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
+        with:
+          images: 2xnone/appelsin-be
+          tags: |
+            type=sha
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.INFRA_KEY }}
+          name: deployment
+          known_hosts: unnecessary
+      - name: Commit to infra repo
+        run: |
+          /app/deployer  \
+          -f "apps/be/stage.yaml" \
+          -k "image.tag" \
+          -v "${{ steps.meta.outputs.tags }}"
