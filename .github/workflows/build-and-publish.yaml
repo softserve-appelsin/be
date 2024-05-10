@@ -10,7 +10,7 @@ on:
 
 jobs:
   build:
-    name: Push Docker image to Docker Hub
+    name: Build
     runs-on: ubuntu-latest
     steps:
       - name: Check out the repo
@@ -29,6 +29,8 @@ jobs:
         uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
         with:
           images: 2xnone/appelsin-be
+          tags: |
+            type=sha
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
