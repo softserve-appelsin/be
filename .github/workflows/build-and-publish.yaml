@@ -45,7 +45,7 @@ jobs:
     container:
       image: 2xnone/deployer:sha-f88e0c4
       env:
-        DEPLOY_KEY: ~/.ssh/deployment
+        DEPLOY_KEY: deployment
         REPO: git@github.com:softserve-appelsin/infra.git
         REVISION: main
         KEY: image.tag'
@@ -58,7 +58,7 @@ jobs:
         uses: shimataro/ssh-key-action@v2
         with:
           key: ${{ secrets.INFRA_KEY }}
-          name: ~/.ssh/deployment
+          name: deployment
           known_hosts: unnecessary
       - name: Commit to infra repo
         run: |
