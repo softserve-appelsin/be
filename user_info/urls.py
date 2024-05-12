@@ -1,5 +1,6 @@
 from django.urls import path
-from .views import GetAllUsersAPIView, UserProfileTypesAPIView, UserInfoAPIView, UserFullNameAPIView, UpdateInfoUserAPIView, ArtistListAPIView
+from .views import GetAllUsersAPIView, UserProfileTypesAPIView, \
+    UserInfoAPIView, UserFullNameAPIView, UpdateInfoUserAPIView, ArtistListAPIView
 
 urlpatterns = [
     path('get_all_users/', GetAllUsersAPIView.as_view()),

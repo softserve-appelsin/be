@@ -2,7 +2,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
 from django.contrib.auth.models import User
-from .serializers import UserSerializer, UserProfileSerializer
+from .serializers import UserSerializer, UserProfileSerializer, UserAndProfileSerializer
 from users.models import Profile
 from rest_framework.permissions import IsAuthenticated
 from music.models import PlayList, Track
@@ -99,20 +99,28 @@ class ArtistListAPIView(APIView):
             user_serializer = UserSerializer(user)
             profile_serializer = UserProfileSerializer(profile)
             
+            user_data = user_serializer.data
+            profile_data = profile_serializer.data
+            
+            combined_data = {
+                **user_data,
+                **profile_data
+            }
+            
             return Response({"success": True, "data": {
-                "user": user_serializer.data,
-                "profile": profile_serializer.data
+                "user": combined_data,
             }}, status=status.HTTP_200_OK)
          
         artists_profiles = Profile.objects.filter(profile_type="Artist")
-        
+                
         if not artists_profiles.exists():
             return Response({"message": "No artists available"}, status=status.HTTP_404_NOT_FOUND)
 
-        users = [profile.user for profile in artists_profiles]
-        user_serializer = UserSerializer(users, many=True)
-        profile_serializer = UserProfileSerializer(artists_profiles, many=True)
-        return Response({"success": True, "data": {
-                "user": user_serializer.data,
-                "profile": profile_serializer.data
-            }}, status=status.HTTP_200_OK)
+        user_data_list = [] 
+        for profile in artists_profiles:
+            user = User.objects.get(id=profile.user.id)  
+            serializer = UserAndProfileSerializer(user)  
+            user_data = serializer.data  
+            user_data_list.append(user_data)
+
+        return Response({"success": True, "data": user_data_list}, status=status.HTTP_200_OK)

@@ -5,13 +5,14 @@ from .views import TrackAPIView, PlayListAPIView, \
 
 urlpatterns = [
     path('tracks/', TrackAPIView.as_view()),
+    path('tracks/<int:pk>/', TrackAPIView.as_view()),
     path('playlists/', PlayListAPIView.as_view()),
     path('playlists_info/', PlayListInfoAPIView.as_view()),
     path('like_tracks/', TrackLikeAPIView.as_view()),
     path('album/', AlbumAPIView.as_view()),
     path('album/<int:pk>', AlbumAPIView.as_view()),
     path('track_by_artist/', TrackByArtistAPIView.as_view()),
-    path('album_by_artis/', AlbumByArtistAPIView.as_view()),
+    path('album_by_artist/', AlbumByArtistAPIView.as_view()),
     path('page_artist/<int:id>', TrackAlbumPageArtistAPIView.as_view()),
 ]
 
