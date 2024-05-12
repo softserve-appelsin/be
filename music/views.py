@@ -3,7 +3,7 @@ from rest_framework.views import APIView
 from .serializers import TrackSerializer, PlayListSerializer, TrackInfoSerializer, AlbumSerializer
 from rest_framework.permissions import IsAuthenticated
 from .models import Track, PlayList, Album
-from .permissions import IsArtist
+from .permissions import IsArtist, IsArtistObj
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import FileResponse
 from rest_framework import status
@@ -11,13 +11,22 @@ from django.shortcuts import get_object_or_404
 from .utils import get_track_file_from_aws
 from django.contrib.auth.models import User
 from django.http import Http404
+from rest_framework import permissions
 
 class TrackAPIView(APIView):
+    
+    def get_permissions(self):
+        if self.request.method == 'DELETE':
+            permission_classes = [IsArtistObj]
+        else:
+            permission_classes = [IsArtist]
+        return [permission() for permission in permission_classes]
+
+    
     
     def get(self, request):
         track_id = request.query_params.get('track_id_file')
         track_id_info = request.query_params.get('track_id')
-        
         if track_id:
             try:
                 track = get_object_or_404(Track, id=track_id)
@@ -51,9 +60,16 @@ class TrackAPIView(APIView):
         tracks = Track.objects.all()
         serializers_track = TrackInfoSerializer(tracks, many=True)
         return Response({"success": True, "data": serializers_track.data})
-    
+
+        
     
     def post(self, request):
+        title = request.data.get('title')
+        user = request.user
+        existing_track = Track.objects.filter(user=user, title=title).exists()
+        if existing_track:
+            return Response({"success": False, "msg": "This track already exists for the user."}, status=status.HTTP_400_BAD_REQUEST)
+
         serializer = TrackSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             serializer.save()
@@ -62,11 +78,28 @@ class TrackAPIView(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     
+    def put(self, request):
+        try:
+            track_id = request.data.get('track_id')
+            if track_id:
+                title = request.data['title']
+                track = Track.objects.get(id=track_id)
+                serializer = TrackSerializer(track)
+                serializer.update()
+
+                return Response({"success": True, "message": f"updated title: {title}"})
+        except Track.DoesNotExist as e:
+            return Response({'status_code': 404, "message": str(e)}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'status_code': 400, "message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+                
+            
+    
     def delete(self, request, pk=None):
         if pk:
             try:
                 track = get_object_or_404(Track, id=pk)
-                track.delete()
+                # track.delete()
                 return Response({"success": True, "msg": "Track deleted"}, status=status.HTTP_204_NO_CONTENT)
             except Track.DoesNotExist:
                 return Response({"success": False, "msg": "Track does not exist"}, status=status.HTTP_404_NOT_FOUND)
@@ -82,7 +115,7 @@ class TrackByArtistAPIView(APIView):
         try:
             user = request.user
             tracks = Track.objects.filter(user=user)
-            serializer = TrackSerializer(tracks)
+            serializer = TrackSerializer(tracks, many=True, context={'request': request})
             return Response({"success": True, "data": serializer.data})
         except Exception as e:
             return Response({"success": False, "msg": str(e)})
@@ -96,7 +129,7 @@ class AlbumByArtistAPIView(APIView):
         try:
             user = request.user
             tracks = Album.objects.filter(user=user)
-            serializer = AlbumSerializer(tracks)
+            serializer = AlbumSerializer(tracks, many=True, context={'request': request})
             return Response({"success": True, "data": serializer.data})
         except Exception as e:
             return Response({"success": False, "msg": str(e)})
