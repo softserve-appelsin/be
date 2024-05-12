@@ -14,15 +14,6 @@ from django.http import Http404
 
 class TrackAPIView(APIView):
     
-    # def get_permissions(self):
-    #     if self.request.method == 'DELETE':
-    #         permission_classes = [IsArtistObj]
-    #     else:
-    #         permission_classes = [IsArtist]
-    #     return [permission() for permission in permission_classes]
-
-    
-    
     def get(self, request):
         track_id = request.query_params.get('track_id_file')
         track_id_info = request.query_params.get('track_id')
@@ -97,8 +88,8 @@ class TrackAPIView(APIView):
     def delete(self, request, pk=None):
         if pk:
             try:
-                track = get_object_or_404(Track, id=pk)
-                # track.delete()
+                track = get_object_or_404(Track, id=pk, user=request.user)
+                track.delete()
                 return Response({"success": True, "msg": "Track deleted"}, status=status.HTTP_204_NO_CONTENT)
             except Track.DoesNotExist:
                 return Response({"success": False, "msg": "Track does not exist"}, status=status.HTTP_404_NOT_FOUND)
@@ -293,7 +284,7 @@ class AlbumAPIView(APIView):
     def delete(self, request, pk=None):
         if pk:
             try:
-                album = get_object_or_404(Album, id=pk)
+                album = get_object_or_404(Album, id=pk, user=request.user)
                 album.delete()
                 return Response({"success": True, "msg": "Album deleted"}, status=status.HTTP_204_NO_CONTENT)
             except Album.DoesNotExist:
