@@ -3,7 +3,7 @@ from rest_framework.views import APIView
 from .serializers import TrackSerializer, PlayListSerializer, TrackInfoSerializer, AlbumSerializer
 from rest_framework.permissions import IsAuthenticated
 from .models import Track, PlayList, Album
-from .permissions import IsArtist, IsArtistObj
+from .permissions import IsArtist
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import FileResponse
 from rest_framework import status
@@ -11,16 +11,15 @@ from django.shortcuts import get_object_or_404
 from .utils import get_track_file_from_aws
 from django.contrib.auth.models import User
 from django.http import Http404
-from rest_framework import permissions
 
 class TrackAPIView(APIView):
     
-    def get_permissions(self):
-        if self.request.method == 'DELETE':
-            permission_classes = [IsArtistObj]
-        else:
-            permission_classes = [IsArtist]
-        return [permission() for permission in permission_classes]
+    # def get_permissions(self):
+    #     if self.request.method == 'DELETE':
+    #         permission_classes = [IsArtistObj]
+    #     else:
+    #         permission_classes = [IsArtist]
+    #     return [permission() for permission in permission_classes]
 
     
     
