@@ -26,6 +26,13 @@ class TrackAPIView(APIView):
     def get(self, request):
         track_id = request.query_params.get('track_id_file')
         track_id_info = request.query_params.get('track_id')
+        track_name = request.query_params.get('track_name')
+        
+        if track_name:
+            track = Track.objects.filter(title__icontains=track_name)
+            serializer = TrackSerializer(track, many=True)
+            return Response({"success": True, "data": serializer.data})
+        
         if track_id:
             try:
                 track = get_object_or_404(Track, id=track_id)
@@ -139,6 +146,13 @@ class PlayListAPIView(APIView):
     permission_classes = [IsAuthenticated,]
 
     def get(self, request):
+        playlist_name = request.query_params.get('playlist_name')
+        
+        if playlist_name:
+            playlist = PlayList.objects.filter(title__icontains=playlist_name, user=request.user)
+            serializer = PlayListSerializer(playlist, many=True)
+            return Response({'success': True, 'data': serializer.data})
+        
         try:
             playlist = PlayList.objects.filter(user=request.user)
             
@@ -261,6 +275,13 @@ class TrackLikeAPIView(APIView):
 class AlbumAPIView(APIView):
     
     def get(self, request, pk=None):
+        
+        album_name = request.query_params.get('album_name')
+        
+        if album_name:
+            playlist = Album.objects.filter(title__icontains=album_name)
+            serializer = AlbumSerializer(playlist, many=True)
+            return Response({'success': True, 'data': serializer.data})
         
         if pk:
             try:

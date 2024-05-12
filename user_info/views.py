@@ -88,7 +88,13 @@ class UpdateInfoUserAPIView(UpdateAPIView):
 class ArtistListAPIView(APIView):
     
     def get(self, request, pk=None):
-            
+        artist_name = request.query_params.get('artist_name')
+        
+        if artist_name:
+            artist = User.objects.filter(username__icontains=artist_name)
+            serializer = UserSerializer(artist, many=True)
+            return Response({'success': True, 'data': serializer.data})
+        
         if pk:
             user = get_object_or_404(User, id=pk)
             profile = get_object_or_404(Profile, user=user)
