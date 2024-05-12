@@ -1,7 +1,7 @@
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .serializers import TrackSerializer, PlayListSerializer, TrackInfoSerializer, AlbumSerializer
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
 from .models import Track, PlayList, Album
 from .permissions import IsArtist
 from django.core.exceptions import ObjectDoesNotExist
@@ -13,6 +13,15 @@ from django.contrib.auth.models import User
 from django.http import Http404
 
 class TrackAPIView(APIView):
+    
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            permission_classes = [AllowAny, ]
+        else:
+            permission_classes = [IsAuthenticated, IsArtist, ]
+        return [permission() for permission in permission_classes]
+
+    
     
     def get(self, request):
         track_id = request.query_params.get('track_id_file')
@@ -296,6 +305,8 @@ class AlbumAPIView(APIView):
 
 
 class TrackAlbumPageArtistAPIView(APIView):
+    
+    permission_classes = [IsAuthenticated, ]
     
     def get(self, request, id):
         try: 
