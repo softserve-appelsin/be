@@ -159,7 +159,7 @@ class PlayListAPIView(APIView):
         
         if pk:
             try:
-                playlist = PlayList.objects.get(id=pk)
+                playlist = PlayList.objects.get(id=pk, user=request.user)
                 serializer = PlayListInfoSerializer(playlist)
                 return Response({"success": True, "data": serializer.data})
             except Exception as e:

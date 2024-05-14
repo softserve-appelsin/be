@@ -39,6 +39,7 @@ class PlayListSerializer(serializers.ModelSerializer):
 class PlayListInfoSerializer(serializers.ModelField):
     class Meta:
         model = PlayList
+        fields = ['user', 'title', 'tracks']
 
 
 
