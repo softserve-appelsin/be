@@ -1,6 +1,6 @@
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .serializers import TrackSerializer, PlayListSerializer, TrackInfoSerializer, AlbumSerializer
+from .serializers import TrackSerializer, PlayListSerializer, TrackInfoSerializer, AlbumSerializer, PlayListInfoSerializer
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
 from .models import Track, PlayList, Album
 from .permissions import IsArtist
@@ -145,14 +145,26 @@ class PlayListAPIView(APIView):
 
     permission_classes = [IsAuthenticated,]
 
-    def get(self, request):
+    def get(self, request, pk=None):
         playlist_name = request.query_params.get('playlist_name')
+        playlist = request.query_params.get('playlsit')
         
         if playlist_name:
-            playlist = PlayList.objects.filter(title__icontains=playlist_name, user=request.user)
-            serializer = PlayListSerializer(playlist, many=True)
-            return Response({'success': True, 'data': serializer.data})
+            try:
+                playlist = PlayList.objects.filter(title__icontains=playlist_name, user=request.user)
+                serializer = PlayListSerializer(playlist, many=True)
+                return Response({'success': True, 'data': serializer.data})
+            except Exception as e:
+                return Response({"success": False, "message": str(e)})
         
+        if pk:
+            try:
+                playlist = PlayList.objects.get(id=pk)
+                serializer = PlayListInfoSerializer(playlist, many=True)
+                return Response({"success": True, "data": serializer.data})
+            except Exception as e:
+                    return Response({"success": False, "message": str(e)})
+            
         try:
             playlist = PlayList.objects.filter(user=request.user)
             
