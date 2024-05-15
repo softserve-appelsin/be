@@ -22,7 +22,7 @@ class TrackInfoSerializer(serializers.ModelSerializer):
         fields = ['id', 'artist', 'title', 'album', 'create_at', 'plays_count', 'likes_count', 'user_of_likes']
 
 class AlbumSerializer(serializers.ModelSerializer):
-    tracks = TrackSerializer(many=True, read_only=True)
+    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
     
     class Meta:
         model = Album
