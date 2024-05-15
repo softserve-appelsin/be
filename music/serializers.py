@@ -36,10 +36,12 @@ class PlayListSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class PlayListInfoSerializer(serializers.ModelField):
+class PlayListInfoSerializer(serializers.ModelSerializer):
+    tracks = TrackSerializer(many=True, read_only=True)
+
     class Meta:
         model = PlayList
-        fields = ['user', 'title', 'tracks']
+        fields = ['title', 'tracks']
 
 
 

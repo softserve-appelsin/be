@@ -161,9 +161,9 @@ class PlayListAPIView(APIView):
             try:
                 playlist = PlayList.objects.get(id=pk, user=request.user)
                 serializer = PlayListInfoSerializer(playlist)
-                return Response({"success": True, "data": serializer.data})
+                return Response({'success': True, 'data': serializer.data})
             except Exception as e:
-                    return Response({"success": False, "message": str(e)})
+                return Response({"success": False, "message": str(e)})
             
         try:
             playlist = PlayList.objects.filter(user=request.user)
