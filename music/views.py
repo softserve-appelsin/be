@@ -290,7 +290,7 @@ class AlbumAPIView(APIView):
         album_name = request.query_params.get('album_name')
         
         if album_name:
-            playlist = Album.objects.filter(title__icontains=album_name)
+            playlist = Album.objects.filter(name__icontains=album_name)
             serializer = AlbumSerializer(playlist, many=True)
             return Response({'success': True, 'data': serializer.data})
         
