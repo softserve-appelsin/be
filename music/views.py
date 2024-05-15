@@ -297,8 +297,13 @@ class AlbumAPIView(APIView):
         if pk:
             try:
                 current_album = Album.objects.get(id=pk)
+                tracks_in_album = Track.objects.filter(album=current_album)
                 serializer = AlbumSerializer(current_album)
-                return Response({"success": True, "data": serializer.data})
+                tracks = TrackInfoSerializer(tracks_in_album, many=True)
+                return Response({"success": True, "data": {
+                    'album': serializer.data,
+                    'tracks': tracks.data
+                }})
             except Album.DoesNotExist:
                 return Response({"success": False, "msg": 'album does not exist'}, status=status.HTTP_404_NOT_FOUND)
             
@@ -319,22 +324,28 @@ class AlbumAPIView(APIView):
         
         
     def put(self, request, pk=None):
-        if pk:
-            try:
-                album = Album.objects.get(id=pk, user=request.user)
-            except Album.DoesNotExist:
-                return Response({"success": False, "msg": 'Album does not exist'}, status=status.HTTP_404_NOT_FOUND)
-            
-            data = request.data
-            serializer = AlbumSerializer(album, data=data, partial=True, context={'request': request})
-            
-            if serializer.is_valid():
-                serializer.save()
-                return Response({"success": True, "msg": "Album updated"})
-            else:
-                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        else:
+        if not pk:
             return Response({"success": False, "msg": "Album id is required for update"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            album = Album.objects.get(id=pk, user=request.user)
+        except Album.DoesNotExist:
+            return Response({"success": False, "msg": 'Album does not exist'}, status=status.HTTP_404_NOT_FOUND)
+        
+        track_id = request.data.get('track_id')
+        try:
+            track = Track.objects.get(id=track_id)
+        except Track.DoesNotExist:
+            return Response({"success": False, "msg": 'Track does not exist'}, status=status.HTTP_404_NOT_FOUND)
+        
+        serializer = TrackSerializer(track, data=request.data, partial=True, context={'request': request})
+        
+        if serializer.is_valid():
+            serializer.save(album=album)  # Associate track with the album
+            return Response({"success": True, "msg": "Track added to album"})
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
     
     def delete(self, request, pk=None):
         if pk:
