@@ -10,6 +10,7 @@ from music.serializers import PlayListSerializer, TrackSerializer
 from rest_framework import permissions
 from rest_framework.generics import UpdateAPIView
 from django.shortcuts import get_object_or_404
+from django.db.models import Sum
 
 
 class UserInfoAPIView(APIView):
@@ -102,6 +103,8 @@ class ArtistListAPIView(APIView):
             if profile.profile_type != "Artist":
                 return Response({"success": True, "msg": "current user is not artist"}, status=status.HTTP_400_BAD_REQUEST)
             
+            tracks = Track.objects.filter(user=user)
+            total_listens = tracks.aggregate(total_listens=Sum('plays_count'))['total_listens'] or 0
             user_serializer = UserSerializer(user)
             profile_serializer = UserProfileSerializer(profile)
             
@@ -113,8 +116,10 @@ class ArtistListAPIView(APIView):
                 **profile_data
             }
             
+            
             return Response({"success": True, "data": {
                 "user": combined_data,
+                "total_listens": total_listens
             }}, status=status.HTTP_200_OK)
          
         artists_profiles = Profile.objects.filter(profile_type="Artist")
